@@ -4,7 +4,7 @@ import pyperclip
 
 from tkinter import filedialog
 from functools import partial
-# from Controller import Controller
+from Controller import Controller
 
 customtkinter.set_appearance_mode("Dark")  # Modes: "System" (standard), "Dark", "Light"
 customtkinter.set_default_color_theme("dark-blue")  # Themes: "blue" (standard), "green", "dark-blue"
@@ -12,7 +12,7 @@ customtkinter.set_default_color_theme("dark-blue")  # Themes: "blue" (standard),
 class GraphicalUserInterface(customtkinter.CTk):
     def __init__(self):
         super().__init__()
-        # self.controller = Controller()
+        self.controller = Controller()
 
         self.configure_window()
         self.create_sidebar()
@@ -118,14 +118,15 @@ class GraphicalUserInterface(customtkinter.CTk):
     def attempt_decode(self):
         nr_lsb_used = self.get_nr_LSBs_used(self.decoding_lsb_option_menu)
         decoding_mask = bytes.fromhex(self.decoding_mask.get())
-        secret_message, exception = self.controller.handle_decode(self.decoding_filename, nr_lsb_used, decoding_mask)
+        # secret_message, exception = self.controller.handle_decode(self.decoding_filename, nr_lsb_used, decoding_mask)
+        self.controller.handle_detect(self.decoding_filename)
 
-        if exception is None:
-            self.decode_result.configure(text="Decoding process done successfully.")
-            self.decode_secret_message.insert("0.0", str(secret_message)[2:-1])
-            self.decode_secret_message.grid(row=4, column=0, padx=(150, 150), pady=(50, 50), sticky="nsew")
-        else:
-            self.decode_result.configure(text=str(exception))
+        # if exception is None:
+        #     self.decode_result.configure(text="Decoding process done successfully.")
+        #     self.decode_secret_message.insert("0.0", str(secret_message)[2:-1])
+        #     self.decode_secret_message.grid(row=4, column=0, padx=(150, 150), pady=(50, 50), sticky="nsew")
+        # else:
+        #     self.decode_result.configure(text=str(exception))
 
         self.decode_result.grid(row=3, column=0, padx=(0, 0), pady=(10, 10))
 
