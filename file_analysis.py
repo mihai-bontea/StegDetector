@@ -10,23 +10,14 @@ class StegoFileInspector:
         self.filetype = os.path.splitext(filepath)[1].lower()
         self.warnings = []
 
-    def analyze(self):
-        """Run all analysis checks."""
-        self.check_file_size()
-        self.check_headers()
-        self.check_metadata()
-        if self.filetype == ".png":
-            self.check_png_chunks()
-        return self.report()
-
-    def check_file_size(self):
+    def _check_file_size(self):
         size = os.path.getsize(self.filepath)
         if size < 1024:
             self.warnings.append(f"File size unusually small ({size} bytes).")
         elif size > 10 * 1024 * 1024:
             self.warnings.append(f"File size unusually large ({size/1024/1024:.2f} MB).")
 
-    def check_headers(self):
+    def _check_headers(self):
         try:
             with open(self.filepath, "rb") as f:
                 header = f.read(8)
@@ -40,7 +31,7 @@ class StegoFileInspector:
         except Exception as e:
             self.warnings.append(f"Header check failed: {e}")
 
-    def check_metadata(self):
+    def _check_metadata(self):
         if self.filetype not in [".jpg", ".jpeg", ".tiff"]:
             return
         try:
@@ -57,7 +48,7 @@ class StegoFileInspector:
         except Exception as e:
             self.warnings.append(f"EXIF check failed: {e}")
 
-    def check_png_chunks(self):
+    def _check_png_chunks(self):
         try:
             with open(self.filepath, "rb") as f:
                 f.seek(8)  # skip PNG signature
@@ -78,6 +69,14 @@ class StegoFileInspector:
                         self.warnings.append(f"Nonstandard PNG chunk found: {chunk_type.decode('ascii')}")
         except Exception as e:
             self.warnings.append(f"PNG chunk analysis failed: {e}")
+    
+    def analyze(self):
+        self._check_file_size()
+        self._check_headers()
+        self._check_metadata()
+        if self.filetype == ".png":
+            self._check_png_chunks()
+        return self.report()
 
     def report(self):
         if not self.warnings:
