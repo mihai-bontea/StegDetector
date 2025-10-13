@@ -1,6 +1,5 @@
 import os
 import struct
-import hashlib
 from PIL import Image
 import exifread
 
@@ -20,7 +19,6 @@ class StegoFileInspector:
             self.check_png_chunks()
         return self.report()
 
-    # --- Basic file info ---
     def check_file_size(self):
         size = os.path.getsize(self.filepath)
         if size < 1024:
@@ -28,7 +26,6 @@ class StegoFileInspector:
         elif size > 10 * 1024 * 1024:
             self.warnings.append(f"File size unusually large ({size/1024/1024:.2f} MB).")
 
-    # --- Header integrity checks ---
     def check_headers(self):
         try:
             with open(self.filepath, "rb") as f:
@@ -43,10 +40,9 @@ class StegoFileInspector:
         except Exception as e:
             self.warnings.append(f"Header check failed: {e}")
 
-    # --- Metadata / EXIF analysis ---
     def check_metadata(self):
         if self.filetype not in [".jpg", ".jpeg", ".tiff"]:
-            return  # EXIF only applies to these typically
+            return
         try:
             with open(self.filepath, "rb") as f:
                 tags = exifread.process_file(f, details=False)
@@ -61,7 +57,6 @@ class StegoFileInspector:
         except Exception as e:
             self.warnings.append(f"EXIF check failed: {e}")
 
-    # --- PNG Chunk structure check ---
     def check_png_chunks(self):
         try:
             with open(self.filepath, "rb") as f:
@@ -84,7 +79,6 @@ class StegoFileInspector:
         except Exception as e:
             self.warnings.append(f"PNG chunk analysis failed: {e}")
 
-    # --- Final report ---
     def report(self):
         if not self.warnings:
             return f"[{self.filename}] No anomalies detected."
