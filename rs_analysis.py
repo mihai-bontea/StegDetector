@@ -131,28 +131,3 @@ class RSAnalyzer:
         ax.axis("off")
 
         return fig
-
-analyzer = RSAnalyzer(block_size=16, backend="python")
-rs_map = analyzer.analyze("foid.jpg")
-
-img = cv2.imread("foid.jpg", cv2.IMREAD_GRAYSCALE)
-
-confidence = analyzer.stego_confidence(rs_map)
-
-print("Stego confidence:", confidence)
-
-# heatmap_img = analyzer.make_heatmap_figure(rs_map)
-# heatmap_img.show()
-fig_overlay = analyzer.make_old_style_overlay_figure(img, rs_map)
-fig_overlay.show()
-plt.show()
-cv2.waitKey(0)
-
-# Save for Latex
-fig = analyzer.make_heatmap_figure(rs_map)
-fig.savefig("rs_heatmap.pdf", dpi=300, bbox_inches="tight")
-
-fig_overlay = analyzer.make_old_style_overlay_figure(img, rs_map)
-fig_overlay.savefig("rs_overlay.pdf", dpi=300, bbox_inches="tight")
-
-# Then in Latex: \includegraphics[width=0.9\linewidth]{rs_overlay.pdf}
