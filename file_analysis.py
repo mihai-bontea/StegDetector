@@ -1,4 +1,5 @@
 import os
+import zlib
 import struct
 from PIL import Image
 import exifread
@@ -70,24 +71,10 @@ class StegoFileInspector:
         except Exception as e:
             self.warnings.append(f"PNG chunk analysis failed: {e}")
     
-    def analyze(self):
+    def get_anomaly_report(self):
         self._check_file_size()
         self._check_headers()
         self._check_metadata()
         if self.filetype == ".png":
             self._check_png_chunks()
-        return self.report()
-
-    def report(self):
-        if not self.warnings:
-            return f"[{self.filename}] No anomalies detected."
-        else:
-            report = f"[{self.filename}] Potential issues found:\n"
-            for w in self.warnings:
-                report += f"  - {w}\n"
-            return report
-        
-
-file_analyzer = StegoFileInspector("foid.jpg")
-file_analyzer.analyze()
-print(file_analyzer.report())
+        return self.warnings
