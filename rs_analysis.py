@@ -26,7 +26,7 @@ class RSAnalyzer:
     @classmethod
     def _flip_group(cls, group: np.ndarray) -> np.ndarray:
         return np.array([cls._flip_lsb(x) for x in group])
-
+    
     def _classify_groups(self, block: np.ndarray) -> tuple[int, int]:
         flat = block.flatten()
         R = S = 0
@@ -59,9 +59,6 @@ class RSAnalyzer:
         return rs_map
 
     def _analyze_cpp(self, img: np.ndarray) -> np.ndarray:
-        """
-        Should return an rs_map (same shape and semantics as Python version).
-        """
         raise NotImplementedError("C++ backend not yet implemented.")
         # def _analyze_cpp(self, img):
         # import rs_cpp
@@ -76,33 +73,86 @@ class RSAnalyzer:
             return self._analyze_python(img)
         elif self.backend == "cpp":
             return self._analyze_cpp(img)
+    
+    def stego_confidence(self, rs_map: np.ndarray) -> float:
+        """
+        Returns a confidence score in the [0, 1] range, indicating likelihood of stego
+        """
+        mean_score = np.mean(rs_map)
+        ratio_score = np.mean(rs_map > 0.15)
+        variance_score = np.var(rs_map)
+
+        # Normalize components
+        mean_n = np.clip((mean_score - 0.05) / 0.15, 0, 1)
+        var_n  = np.clip(variance_score / 0.02, 0, 1)
+
+        confidence = (
+            0.5 * ratio_score +
+            0.3 * mean_n +
+            0.2 * var_n
+        )
+
+        return float(np.clip(confidence, 0, 1))
 
     @staticmethod
-    def show_heatmap(rs_map: np.ndarray, title: str = "RS Analysis Heatmap"):
-        plt.figure(figsize=(8, 6))
-        plt.imshow(rs_map, cmap="inferno", interpolation="nearest")
-        plt.colorbar(label="RS Difference (|R−S| / (R+S))")
-        plt.title(title)
-        plt.axis("off")
-        plt.show()
+    def make_heatmap_figure(rs_map: np.ndarray):
+        fig, ax = plt.subplots(figsize=(8, 6))
+
+        im = ax.imshow(rs_map, cmap="inferno", interpolation="nearest")
+        cbar = fig.colorbar(im, ax=ax)
+        cbar.set_label("RS Difference (|R−S| / (R+S))")
+
+        ax.set_title("RS Analysis Heatmap — Suspicious Regions Highlighted")
+        ax.axis("off")
+
+        return fig
 
     @staticmethod
-    def show_overlay(img: np.ndarray, rs_map: np.ndarray, alpha: float = 0.4):
+    def make_old_style_overlay_figure(img: np.ndarray, rs_map: np.ndarray):
         rs_norm = rs_map / rs_map.max() if rs_map.max() != 0 else rs_map
+
         overlay = cv2.applyColorMap(
-            (255 * (1 - rs_norm)).astype(np.uint8), cv2.COLORMAP_JET
-        )
-        overlay = cv2.resize(overlay, (img.shape[1], img.shape[0]))
-        combined = cv2.addWeighted(
-            cv2.cvtColor(img, cv2.COLOR_GRAY2BGR), 1 - alpha, overlay, alpha, 0
+            (255 * (1 - rs_norm)).astype(np.uint8),
+            cv2.COLORMAP_JET
         )
 
-        plt.figure(figsize=(8, 6))
-        plt.imshow(cv2.cvtColor(combined, cv2.COLOR_BGR2RGB))
-        plt.title("RS Suspicious Area Overlay")
-        plt.axis("off")
-        plt.show()
+        overlay = cv2.resize(overlay, (img.shape[1], img.shape[0]))
+
+        combined = cv2.addWeighted(
+            cv2.cvtColor(img, cv2.COLOR_GRAY2BGR), 0.6,
+            overlay, 0.4, 0
+        )
+
+        combined_rgb = cv2.cvtColor(combined, cv2.COLOR_BGR2RGB)
+
+        fig, ax = plt.subplots(figsize=(8, 6))
+        ax.imshow(combined_rgb)
+        ax.set_title("RS Suspicious Area Overlay")
+        ax.axis("off")
+
+        return fig
 
 analyzer = RSAnalyzer(block_size=16, backend="python")
-rs_map = analyzer.analyze("fid.jpg")
-analyzer.show_heatmap(rs_map)
+rs_map = analyzer.analyze("foid.jpg")
+
+img = cv2.imread("foid.jpg", cv2.IMREAD_GRAYSCALE)
+
+confidence = analyzer.stego_confidence(rs_map)
+
+print("Stego confidence:", confidence)
+
+# heatmap_img = analyzer.make_heatmap_figure(rs_map)
+# heatmap_img.show()
+fig_overlay = analyzer.make_old_style_overlay_figure(img, rs_map)
+fig_overlay.show()
+plt.show()
+cv2.waitKey(0)
+
+# Save for Latex
+fig = analyzer.make_heatmap_figure(rs_map)
+fig.savefig("rs_heatmap.pdf", dpi=300, bbox_inches="tight")
+
+fig_overlay = analyzer.make_old_style_overlay_figure(img, rs_map)
+fig_overlay.savefig("rs_overlay.pdf", dpi=300, bbox_inches="tight")
+
+# Then in Latex: \includegraphics[width=0.9\linewidth]{rs_overlay.pdf}
