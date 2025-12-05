@@ -1,0 +1,46 @@
+\documentclass[11pt]{article}
+
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{geometry}
+\geometry{margin=1in}
+
+\title{StegDetector Automated Steganalysis Report}
+\author{Mihai Bontea}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\section*{Input Image}
+\textbf{Filename:} {{IMAGE_NAME}}
+
+\section*{File Metadata Anomalies}
+{{FILE_WARNINGS}}
+
+\section*{RS Analysis}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.9\linewidth]{rs_heatmap.pdf}
+\caption{RS Analysis Heatmap}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.9\linewidth]{rs_overlay.pdf}
+\caption{RS Overlay Visualization}
+\end{figure}
+
+\section*{High-Pass Residual Analysis}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.95\linewidth]{high_pass_analysis.pdf}
+\caption{High-Pass Residual Steganalysis}
+\end{figure}
+
+\section*{Detection Result}
+\textbf{Estimated Stego Confidence:} {{CONFIDENCE}}
+
+\end{document}
