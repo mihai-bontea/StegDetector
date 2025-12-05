@@ -1,11 +1,13 @@
 import zlib
 import cv2
+import matplotlib.pyplot as plt
 
 from functools import partial
 from typing import Callable
 
 from file_analysis import StegoFileInspector
 from rs_analysis import RSAnalyzer
+from high_pass_residual import HighPassResidualSteganalysis
 
 class Controller:
     def get_file_anomaly_warnings(self, filepath: str):
@@ -23,7 +25,27 @@ class Controller:
         img_grayscale = cv2.imread(filepath, cv2.IMREAD_GRAYSCALE)
         rs_overlay_fig = rs_analyzer.make_old_style_overlay_figure(img_grayscale, rs_map)
 
-        return rs_confidence, rs_heatmap_fig, rs_overlay_fig
+        rs_heatmap_fig.savefig("rs_heatmap.pdf", dpi=300, bbox_inches="tight")
+        rs_overlay_fig.savefig("rs_overlay.pdf", dpi=300, bbox_inches="tight")
+        # Then in Latex: \includegraphics[width=0.9\linewidth]{rs_overlay.pdf}
+
+        # Need to close the figs to avoid error
+        plt.close(rs_heatmap_fig)
+        plt.close(rs_overlay_fig)
+
+        return rs_confidence
+    
+    def get_high_pass_residual_artifacts(self, filepath: str):
+        hpr_analyzer = HighPassResidualSteganalysis(window_size=8)
+        img = cv2.imread(filepath, cv2.IMREAD_GRAYSCALE)
+        hpr_confidence, residual_fig, var_map, heatmap = hpr_analyzer.analyze(filepath)
+
+        fig = hpr_analyzer.make_figure(img, residual_fig, var_map, heatmap)
+        fig.savefig("high_pass_analysis.pdf", dpi=300, bbox_inches="tight")
+        plt.close(fig)
+
+        return hpr_confidence
+
 
     def handle_detect(
         self,
@@ -39,17 +61,13 @@ class Controller:
             file_anomaly_warnings = self.get_file_anomaly_warnings(filepath)
 
             # Run RS Analysis to obtain confidence score and heatmaps
-            rs_confidence, rs_heatmap_fig, rs_overlay_fig = self.get_rs_analysis_artifacts(filepath)
+            rs_confidence = self.get_rs_analysis_artifacts(filepath)
 
-            # Save RS Analysis heatmaps for use in Latex
-            rs_heatmap_fig.savefig("rs_heatmap.pdf", dpi=300, bbox_inches="tight")
-            rs_overlay_fig.savefig("rs_overlay.pdf", dpi=300, bbox_inches="tight")
-            # Then in Latex: \includegraphics[width=0.9\linewidth]{rs_overlay.pdf}
+            hpr_confidence = self.get_high_pass_residual_artifacts(filepath)
+           
 
-            # Need to close the figs to avoid error
-            import matplotlib.pyplot as plt
-            plt.close(rs_heatmap_fig)
-            plt.close(rs_overlay_fig)
+            
 
         except Exception as e:
             exception = e
+            print(exception)
