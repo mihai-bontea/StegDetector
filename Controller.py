@@ -26,9 +26,8 @@ class Controller:
         img_grayscale = cv2.imread(filepath, cv2.IMREAD_GRAYSCALE)
         rs_overlay_fig = rs_analyzer.make_old_style_overlay_figure(img_grayscale, rs_map)
 
-        rs_heatmap_fig.savefig("rs_heatmap.pdf", dpi=300, bbox_inches="tight")
-        rs_overlay_fig.savefig("rs_overlay.pdf", dpi=300, bbox_inches="tight")
-        # Then in Latex: \includegraphics[width=0.9\linewidth]{rs_overlay.pdf}
+        rs_heatmap_fig.savefig("latex_report/rs_heatmap.pdf", dpi=300, bbox_inches="tight")
+        rs_overlay_fig.savefig("latex_report/rs_overlay.pdf", dpi=300, bbox_inches="tight")
 
         # Need to close the figs to avoid error
         plt.close(rs_heatmap_fig)
@@ -42,7 +41,7 @@ class Controller:
         hpr_confidence, residual_fig, var_map, heatmap = hpr_analyzer.analyze(filepath)
 
         fig = hpr_analyzer.make_figure(img, residual_fig, var_map, heatmap)
-        fig.savefig("high_pass_analysis.pdf", dpi=300, bbox_inches="tight")
+        fig.savefig("latex_report/high_pass_analysis.pdf", dpi=300, bbox_inches="tight")
         plt.close(fig)
 
         return hpr_confidence
