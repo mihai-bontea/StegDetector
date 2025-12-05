@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 
 from functools import partial
 from typing import Callable
+from cnn.steganography_detector import SteganographyDetector
 
 from file_analysis import StegoFileInspector
 from rs_analysis import RSAnalyzer
@@ -45,6 +46,15 @@ class Controller:
         plt.close(fig)
 
         return hpr_confidence
+    
+    def get_cnn_confidence_score(self, filepath: str):
+        import tensorflow as tf
+        detector = SteganographyDetector(image_size=(128, 128))
+        detector.model = tf.keras.models.load_model("cnn/model/steg_detector.h5")
+
+        result, confidence = detector.predict_image(filepath)
+
+        return result, confidence
 
 
     def handle_detect(
@@ -59,13 +69,19 @@ class Controller:
             
             # Perform file analysis
             file_anomaly_warnings = self.get_file_anomaly_warnings(filepath)
+            print(f"We have {len(file_anomaly_warnings)} anomalies!")
 
             # Run RS Analysis to obtain confidence score and heatmaps
             rs_confidence = self.get_rs_analysis_artifacts(filepath)
+            print(f"rs_confidence = {rs_confidence}")
 
+            # Run High Pass Residual Analysis to obtain confidence score and heatmaps
             hpr_confidence = self.get_high_pass_residual_artifacts(filepath)
-           
+            print(f"hpr_confidence = {hpr_confidence}")
 
+            # Get the result and confidence score from the neural network
+            result, cnn_confidence = self.get_cnn_confidence_score(filepath)
+            print(f"Steganography detected: {result} (confidence: {cnn_confidence:.2f})")
             
 
         except Exception as e:
