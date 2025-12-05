@@ -7,8 +7,8 @@ from typing import Callable
 from cnn.steganography_detector import SteganographyDetector
 
 from file_analysis import StegoFileInspector
-from rs_analysis import RSAnalyzer
-from high_pass_residual import HighPassResidualSteganalysis
+from statistical_analysis.rs_analysis import RSAnalyzer
+from statistical_analysis.high_pass_residual import HighPassResidualSteganalysis
 
 class Controller:
     def get_file_anomaly_warnings(self, filepath: str):
