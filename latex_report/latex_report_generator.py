@@ -68,7 +68,7 @@ class LatexReportGenerator:
         image_name: str,
         confidence: float,
         file_warnings: list[str],
-        output_tex="report.tex",
+        output_tex="latex_report/report.tex",
     ):
         """
         Fills the LaTeX template with values and writes report.tex

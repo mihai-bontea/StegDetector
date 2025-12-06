@@ -10,6 +10,8 @@ from file_analysis import StegoFileInspector
 from statistical_analysis.rs_analysis import RSAnalyzer
 from statistical_analysis.high_pass_residual import HighPassResidualSteganalysis
 
+from latex_report.latex_report_generator import LatexReportGenerator
+
 class Controller:
     def get_file_anomaly_warnings(self, filepath: str):
         file_analyzer = StegoFileInspector(filepath)
@@ -81,6 +83,10 @@ class Controller:
             # Get the result and confidence score from the neural network
             result, cnn_confidence = self.get_cnn_confidence_score(filepath)
             print(f"Steganography detected: {result} (confidence: {cnn_confidence:.2f})")
+
+            report_generator = LatexReportGenerator("latex_report/report_template.tex")
+            confidence_average = (rs_confidence + hpr_confidence + cnn_confidence) / 3.0
+            report_generator.generate_report(filepath, confidence_average, file_anomaly_warnings)
             
 
         except Exception as e:
