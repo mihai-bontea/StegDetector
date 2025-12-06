@@ -1,9 +1,7 @@
 import tkinter.messagebox
 import customtkinter
-import pyperclip
 
 from tkinter import filedialog
-from functools import partial
 from Controller import Controller
 
 customtkinter.set_appearance_mode("Dark")  # Modes: "System" (standard), "Dark", "Light"
@@ -71,8 +69,7 @@ class GraphicalUserInterface(customtkinter.CTk):
                                                              command=self.attempt_decode)
         self.decode_button.grid(row=2, column=0, padx=(0, 250), pady=(10, 10))
 
-        self.mask_label = customtkinter.CTkLabel(self.tabview.tab("Decode"), text="🔑 Encryption key:", anchor="w")
-        self.mask_label.grid(row=0, column=0, padx=(250, 0), pady=(10, 0))
+        # self.mask_label.grid(row=0, column=0, padx=(250, 0), pady=(10, 0))
 
         self.mask_frame = customtkinter.CTkFrame(self.tabview.tab("Decode"), width=140, height=30)
         self.mask_frame.grid(row=1, column=0, padx=(250, 0), pady=(10, 10))
@@ -87,7 +84,6 @@ class GraphicalUserInterface(customtkinter.CTk):
     def set_default_values(self):
         self.appearance_mode_optionemenu.set("Dark")
         self.scaling_optionemenu.set("100%")
-        self.decoding_lsb_option_menu.set("LSBs used")
         self.decode_button.configure(state="disabled")
 
     def change_appearance_mode_event(self, new_appearance_mode: str):
@@ -101,25 +97,21 @@ class GraphicalUserInterface(customtkinter.CTk):
         self.decoding_filename = filedialog.askopenfilename()
         self.decode_button.configure(state="normal")
     
-    def select_output_path(self, extension):
-        return filedialog.asksaveasfilename(defaultextension=extension) 
+    # def select_output_path(self):
+    #     return filedialog.asksaveasfilename(defaultextension=".pdf")
     
-    def copy_to_clipboard_action(self):
-        pyperclip.copy(str(self.mask))
-
-    def get_nr_LSBs_used(self, option_menu):
-        try:
-            nr_lsb_used = int(option_menu.get())
-        except:
-            return 1
-        else:
-            return nr_lsb_used
+    def select_output_path(self, suggested_name="report.pdf"):
+        return filedialog.asksaveasfilename(
+            title="Save PDF As",
+            defaultextension=".pdf",
+            filetypes=[("PDF files", "*.pdf")],
+            initialfile=suggested_name,
+        )
     
     def attempt_decode(self):
-        nr_lsb_used = self.get_nr_LSBs_used(self.decoding_lsb_option_menu)
-        decoding_mask = bytes.fromhex(self.decoding_mask.get())
         # secret_message, exception = self.controller.handle_decode(self.decoding_filename, nr_lsb_used, decoding_mask)
-        self.controller.handle_detect(self.decoding_filename)
+        report_output_path = self.select_output_path()
+        self.controller.handle_detect(self.decoding_filename, report_output_path)
 
         # if exception is None:
         #     self.decode_result.configure(text="Decoding process done successfully.")
@@ -128,7 +120,7 @@ class GraphicalUserInterface(customtkinter.CTk):
         # else:
         #     self.decode_result.configure(text=str(exception))
 
-        self.decode_result.grid(row=3, column=0, padx=(0, 0), pady=(10, 10))
+        # self.decode_result.grid(row=3, column=0, padx=(0, 0), pady=(10, 10))
 
 
 if __name__ == "__main__":
