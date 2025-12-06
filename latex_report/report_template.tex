@@ -33,6 +33,13 @@ steganography, they are heuristic red flags.
 
 \section*{RS Analysis}
 
+RS Analysis is a statistical steganalysis technique designed to detect data hidden by LSB (least-significant bit) embedding in images. It is based on the fact that in a
+non-stego image, there are certain regular statistical relationships between the different bit-planes and among neighboring pixels. By embedding a message (modifying
+LSBs), these correlations are disturbed, and RS Analysis can detect these disturbances. It is effective when the cover image is a "natural image" (e.g. photos with 
+natural textures and smooth areas) because those have the spatial correlations that RS exploits. In addition, the amount of data hidden needs to be sufficiently high,
+since small payloads may produce a disturbance that is too subtle to reliably detect.
+
+
 \begin{figure}[H]
 \centering
 \includegraphics[width=0.9\linewidth]{rs_heatmap.pdf}
