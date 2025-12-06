@@ -1,6 +1,7 @@
 import subprocess
 import shutil
-
+from pathlib import Path
+from typing import Callable
 
 class LatexReportGenerator:
     """
@@ -17,10 +18,6 @@ class LatexReportGenerator:
             raise RuntimeError(
                 "pdflatex not found. Please install MiKTeX / TeX Live / MacTeX."
             )
-
-    # -------------------------------
-    # Internal helpers
-    # -------------------------------
 
     @staticmethod
     def _escape_latex(text: str) -> str:
@@ -59,10 +56,6 @@ class LatexReportGenerator:
 
         return "\n".join(lines)
 
-    # -------------------------------
-    # Public API
-    # -------------------------------
-
     def generate_report(
         self,
         image_name: str,
@@ -88,16 +81,22 @@ class LatexReportGenerator:
 
         return output_tex
 
-    def compile_pdf(self, tex_file="report.tex"):
-        """
-        Compiles the LaTeX file into a PDF.
-        """
+    def compile_pdf(self, tex_file, output_path):
+        tex_path = Path(tex_file).resolve()
+
+        # Compile LaTeX to PDF
         subprocess.run(
-            ["pdflatex", tex_file],
-            check=True,
-            stdout=subprocess.DEVNULL,
-            stderr=subprocess.DEVNULL,
+            ["pdflatex", "-interaction=nonstopmode", tex_path.name],
+            cwd=str(tex_path.parent),
+            check=True
         )
 
-        pdf_file = tex_file.replace(".tex", ".pdf")
-        return pdf_file
+        generated_pdf = tex_path.with_suffix(".pdf")
+
+        save_path = Path(output_path)
+        if save_path.is_dir():
+            save_path = save_path / generated_pdf.name
+
+        shutil.move(str(generated_pdf), str(save_path))
+
+        return save_path

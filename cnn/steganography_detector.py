@@ -69,7 +69,5 @@ class SteganographyDetector:
         img = img.resize(self.image_size)
         img = np.expand_dims(np.array(img) / 255.0, axis=0)
 
-        print("Before predict()", flush=True)
         pred = self.model.predict(img)[0][0]
-        print("After predict()", flush=True)
         return float(pred)
