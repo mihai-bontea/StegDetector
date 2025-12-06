@@ -1,6 +1,5 @@
 import os
 import numpy as np
-import tensorflow as tf
 from tensorflow.keras import layers, models
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
 from sklearn.model_selection import train_test_split
@@ -70,5 +69,7 @@ class SteganographyDetector:
         img = img.resize(self.image_size)
         img = np.expand_dims(np.array(img) / 255.0, axis=0)
 
+        print("Before predict()", flush=True)
         pred = self.model.predict(img)[0][0]
-        return bool(pred > 0.5), float(pred)
+        print("After predict()", flush=True)
+        return float(pred)

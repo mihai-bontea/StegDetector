@@ -1,8 +1,11 @@
-import zlib
+import os
+os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"
+os.environ["CUDA_VISIBLE_DEVICES"] = ""
+
 import cv2
 import matplotlib.pyplot as plt
+import tensorflow as tf
 
-from functools import partial
 from typing import Callable
 from cnn.steganography_detector import SteganographyDetector
 
@@ -13,6 +16,11 @@ from statistical_analysis.high_pass_residual import HighPassResidualSteganalysis
 from latex_report.latex_report_generator import LatexReportGenerator
 
 class Controller:
+    def __init__(self):
+        self.cnn_detector = SteganographyDetector(image_size=(128, 128))
+        self.cnn_detector.model = tf.keras.models.load_model("cnn/model/steg_detector.h5")
+        pass
+
     def get_file_anomaly_warnings(self, filepath: str):
         file_analyzer = StegoFileInspector(filepath)
         return file_analyzer.get_anomaly_report()
@@ -49,22 +57,19 @@ class Controller:
         return hpr_confidence
     
     def get_cnn_confidence_score(self, filepath: str):
-        import tensorflow as tf
-        detector = SteganographyDetector(image_size=(128, 128))
-        detector.model = tf.keras.models.load_model("cnn/model/steg_detector.h5")
+        self.cnn_detector.model = tf.keras.models.load_model("cnn/model/steg_detector.h5")
 
-        result, confidence = detector.predict_image(filepath)
-
-        return result, confidence
-
+        return self.cnn_detector.predict_image(filepath)
 
     def handle_detect(
         self,
-        filepath: str
+        filepath: str,
+        report_output_path: str
         ):
         print(f"filepath={filepath}")
         try:
             extension = (filepath.split('.'))[1]
+
             if extension not in ["png", "jpg", "jpeg"]:
                 raise ValueError(f"Unable to support decoding for {extension} files!")
             
@@ -80,13 +85,15 @@ class Controller:
             hpr_confidence = self.get_high_pass_residual_artifacts(filepath)
             print(f"hpr_confidence = {hpr_confidence}")
 
-            # Get the result and confidence score from the neural network
-            result, cnn_confidence = self.get_cnn_confidence_score(filepath)
-            print(f"Steganography detected: {result} (confidence: {cnn_confidence:.2f})")
+            # Get the confidence score from the neural network
+            cnn_confidence = self.get_cnn_confidence_score(filepath)
+            print(f"Steganography detected: (confidence: {cnn_confidence:.2f})")
+            
+            confidence_average = rs_confidence * 0.2 + hpr_confidence * 0.4 + cnn_confidence * 0.4
 
             report_generator = LatexReportGenerator("latex_report/report_template.tex")
-            confidence_average = (rs_confidence + hpr_confidence + cnn_confidence) / 3.0
             report_generator.generate_report(filepath, confidence_average, file_anomaly_warnings)
+            report_generator.compile_pdf("latex_report/report.tex", report_output_path)
             
 
         except Exception as e:
