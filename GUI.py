@@ -97,9 +97,6 @@ class GraphicalUserInterface(customtkinter.CTk):
         self.decoding_filename = filedialog.askopenfilename()
         self.decode_button.configure(state="normal")
     
-    # def select_output_path(self):
-    #     return filedialog.asksaveasfilename(defaultextension=".pdf")
-    
     def select_output_path(self, suggested_name="report.pdf"):
         return filedialog.asksaveasfilename(
             title="Save PDF As",
@@ -109,18 +106,14 @@ class GraphicalUserInterface(customtkinter.CTk):
         )
     
     def attempt_decode(self):
-        # secret_message, exception = self.controller.handle_decode(self.decoding_filename, nr_lsb_used, decoding_mask)
         report_output_path = self.select_output_path()
-        self.controller.handle_detect(self.decoding_filename, report_output_path)
+        exception = self.controller.handle_detect(self.decoding_filename, report_output_path)
 
-        # if exception is None:
-        #     self.decode_result.configure(text="Decoding process done successfully.")
-        #     self.decode_secret_message.insert("0.0", str(secret_message)[2:-1])
-        #     self.decode_secret_message.grid(row=4, column=0, padx=(150, 150), pady=(50, 50), sticky="nsew")
-        # else:
-        #     self.decode_result.configure(text=str(exception))
-
-        # self.decode_result.grid(row=3, column=0, padx=(0, 0), pady=(10, 10))
+        if exception is None:
+            self.decode_result.configure(text="Analysis done successfully.")
+        else:
+            self.decode_result.configure(text=str(exception))
+        self.decode_result.grid(row=3, column=0, padx=(0, 0), pady=(10, 10))
 
 
 if __name__ == "__main__":

@@ -66,12 +66,12 @@ class Controller:
         filepath: str,
         report_output_path: str
         ):
-        print(f"filepath={filepath}")
+        exception = None
         try:
             extension = (filepath.split('.'))[1]
 
             if extension not in ["png", "jpg", "jpeg"]:
-                raise ValueError(f"Unable to support decoding for {extension} files!")
+                raise ValueError(f"Unable to support steganalysis for {extension} files!")
             
             # Perform file analysis
             file_anomaly_warnings = self.get_file_anomaly_warnings(filepath)
@@ -99,3 +99,5 @@ class Controller:
         except Exception as e:
             exception = e
             print(exception)
+        
+        return exception
