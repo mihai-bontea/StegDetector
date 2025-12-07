@@ -88,11 +88,11 @@ class Controller:
             # Get the confidence score from the neural network
             cnn_confidence = self.get_cnn_confidence_score(filepath)
             print(f"Steganography detected: (confidence: {cnn_confidence:.2f})")
-            
+
             confidence_average = rs_confidence * 0.2 + hpr_confidence * 0.4 + cnn_confidence * 0.4
 
             report_generator = LatexReportGenerator("latex_report/report_template.tex")
-            report_generator.generate_report(filepath, confidence_average, file_anomaly_warnings)
+            report_generator.generate_report(filepath, rs_confidence, hpr_confidence, cnn_confidence, confidence_average, file_anomaly_warnings)
             report_generator.compile_pdf("latex_report/report.tex", report_output_path)
             
 

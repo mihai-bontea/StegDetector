@@ -39,6 +39,7 @@ LSBs), these correlations are disturbed, and RS Analysis can detect these distur
 natural textures and smooth areas) because those have the spatial correlations that RS exploits. In addition, the amount of data hidden needs to be sufficiently high,
 since small payloads may produce a disturbance that is too subtle to reliably detect.
 
+\textbf{Estimated Stego Confidence:} {{RS_CONFIDENCE}}
 
 \begin{figure}[H]
 \centering
@@ -59,6 +60,8 @@ the "normal content" (smooth, large-scale textures) and amplify the small pertur
 a two-dimensional array showingdifferences, edges, and high-frequency detail. Hidden data often shows up in these residuals more clearly than in the original image. For this 
 reason, these residuals are used by many modern steganalysis methods.
 
+\textbf{Estimated Stego Confidence:} {{HPR_CONFIDENCE}}
+
 \begin{figure}[H]
 \centering
 \includegraphics[width=0.95\linewidth]{high_pass_analysis.pdf}
@@ -66,6 +69,6 @@ reason, these residuals are used by many modern steganalysis methods.
 \end{figure}
 
 \section*{Detection Result}
-\textbf{Estimated Stego Confidence:} {{CONFIDENCE}}
+\textbf{Estimated Stego Confidence:} {{TOTAL_CONFIDENCE}} -- \textit{{{CONFIDENCE_LABEL}}} to be a stego image.
 
 \end{document}

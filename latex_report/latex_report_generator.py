@@ -55,11 +55,25 @@ class LatexReportGenerator:
         lines.append("\\end{itemize}")
 
         return "\n".join(lines)
+    
+    @staticmethod
+    def confidence_to_label(conf):
+        if conf < 0.25:
+            return "Very Unlikely"
+        elif conf < 0.5:
+            return "Unlikely"
+        elif conf < 0.75:
+            return "Likely"
+        else:
+            return "Very Likely"
 
     def generate_report(
         self,
         image_name: str,
-        confidence: float,
+        rs_confidence: float,
+        hpr_confidence: float,
+        cnn_confidence: float,
+        total_confidence: float,
         file_warnings: list[str],
         output_tex="latex_report/report.tex",
     ):
@@ -73,8 +87,14 @@ class LatexReportGenerator:
         warnings_block = self._format_warnings(file_warnings)
 
         filled = template.replace("{{IMAGE_NAME}}", self._escape_latex(image_name))
-        filled = filled.replace("{{CONFIDENCE}}", f"{confidence:.4f}")
+        filled = filled.replace("{{RS_CONFIDENCE}}", f"{rs_confidence:.4f}")
+        filled = filled.replace("{{HPR_CONFIDENCE}}", f"{hpr_confidence:.4f}")
+        filled = filled.replace("{{CNN_CONFIDENCE}}", f"{cnn_confidence:.4f}")
+        filled = filled.replace("{{TOTAL_CONFIDENCE}}", f"{total_confidence:.4f}")
+        filled = filled.replace("{{CONFIDENCE_LABEL}}", self.confidence_to_label(total_confidence))
+
         filled = filled.replace("{{FILE_WARNINGS}}", warnings_block)
+        
 
         with open(output_tex, "w") as f:
             f.write(filled)
