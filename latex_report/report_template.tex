@@ -68,7 +68,42 @@ reason, these residuals are used by many modern steganalysis methods.
 \caption{High-Pass Residual Steganalysis}
 \end{figure}
 
-\section*{Detection Result}
+
+\section*{CNN-Based Steganography Detection}
+
+A convolutional neural network (CNN) was used to provide an additional learned-based estimate of steganographic embedding probability.
+The model has been trained on the BOSSBase(Break Our Steganographic System Base), which is one of the most important and widely used benchmark datasets
+in steganography and steganalysis research. It consists of 10,000 grayscale images.
+
+\textbf{Estimated Stego Confidence:} {{CNN_CONFIDENCE}}
+
+\subsection*{Dataset Preparation}
+Training data is organized into two classes: \textit{cover} (non-stego) and \textit{stego}. 
+\subsection*{Network Architecture}
+The CNN architecture consists of three convolutional blocks followed by a fully connected classifier:
+\begin{itemize}
+    \item Convolutional layer with 32 filters, $3 \times 3$ kernel, ReLU activation
+    \item Batch normalization and $2 \times 2$ max pooling
+    \item Convolutional layer with 64 filters, $3 \times 3$ kernel, ReLU activation
+    \item Batch normalization and $2 \times 2$ max pooling
+    \item Convolutional layer with 128 filters, $3 \times 3$ kernel, ReLU activation
+    \item Batch normalization and global average pooling
+    \item Fully connected layer with 64 units and ReLU activation
+    \item Dropout regularization with rate 0.4
+    \item Final sigmoid output neuron for binary classification
+\end{itemize}
+
+The model is optimized using the Adam optimizer with binary cross-entropy as the loss function and accuracy as the primary training metric.
+
+\subsection*{Training Procedure}
+Training is performed using mini-batch stochastic gradient descent with a batch size of 32.
+Data augmentation is applied during training in the form of random horizontal flips and small rotations (up to 10 degrees) in order to improve generalization and reduce overfitting.
+Validation performance is monitored on a held-out 20\% subset of the training data.
+
+\section*{Conclusion: Detection Result}
+
+The final estimated stego confidence score is obtained from a weighted mean of the methods previously presented.
+
 \textbf{Estimated Stego Confidence:} {{TOTAL_CONFIDENCE}} -- \textit{{{CONFIDENCE_LABEL}}} to be a stego image.
 
 \end{document}
