@@ -3,19 +3,14 @@ os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"
 os.environ["CUDA_VISIBLE_DEVICES"] = ""
 
 import cv2
-import matplotlib.pyplot as plt
 import tensorflow as tf
-
-from typing import Callable
-from cnn.steganography_detector import SteganographyDetector
+import matplotlib.pyplot as plt
 
 from file_analysis import StegoFileInspector
+from cnn.steganography_detector import SteganographyDetector
 from statistical_analysis.rs_analysis import RSAnalyzer
 from statistical_analysis.high_pass_residual import HighPassResidualSteganalysis
-
 from latex_report.latex_report_generator import LatexReportGenerator
-
-from sample_pair_analysis import SPASteganalysis
 
 class Controller:
     def __init__(self):
@@ -81,13 +76,6 @@ class Controller:
             # Perform file analysis
             file_anomaly_warnings = self.get_file_anomaly_warnings(filepath)
             print(f"We have {len(file_anomaly_warnings)} anomalies!")
-
-            # spa = SPASteganalysis()
-
-            # p_hat, (ci_low, ci_high) = spa.analyze(filepath)
-
-            # print(f"SPA embedding estimate: {p_hat:.4f}")
-            # print(f"95% CI: [{ci_low:.4f}, {ci_high:.4f}]")
 
             # Run RS Analysis to obtain confidence score and heatmaps
             rs_confidence = self.get_rs_analysis_artifacts(filepath)
