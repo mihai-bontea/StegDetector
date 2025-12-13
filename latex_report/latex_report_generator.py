@@ -73,6 +73,7 @@ class LatexReportGenerator:
         rs_confidence: float,
         hpr_confidence: float,
         cnn_confidence: float,
+        cnn_confidence_residual: float,
         total_confidence: float,
         file_warnings: list[str],
         output_tex="latex_report/report.tex",
@@ -90,6 +91,7 @@ class LatexReportGenerator:
         filled = filled.replace("{{RS_CONFIDENCE}}", f"{rs_confidence:.4f}")
         filled = filled.replace("{{HPR_CONFIDENCE}}", f"{hpr_confidence:.4f}")
         filled = filled.replace("{{CNN_CONFIDENCE}}", f"{cnn_confidence:.4f}")
+        filled = filled.replace("{{CNN_CONFIDENCE_RESIDUAL}}", f"{cnn_confidence_residual:.4f}")
         filled = filled.replace("{{TOTAL_CONFIDENCE}}", f"{total_confidence:.4f}")
         filled = filled.replace("{{CONFIDENCE_LABEL}}", self.confidence_to_label(total_confidence))
 

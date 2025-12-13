@@ -15,11 +15,15 @@ from statistical_analysis.high_pass_residual import HighPassResidualSteganalysis
 
 from latex_report.latex_report_generator import LatexReportGenerator
 
+from sample_pair_analysis import SPASteganalysis
+
 class Controller:
     def __init__(self):
-        self.cnn_detector = SteganographyDetector(image_size=(128, 128))
+        self.cnn_detector = SteganographyDetector(use_residuals=False)
         self.cnn_detector.model = tf.keras.models.load_model("cnn/model/steg_detector.h5")
-        pass
+        
+        self.cnn_detector_residual = SteganographyDetector(use_residuals=True)
+        self.cnn_detector_residual.model = tf.keras.models.load_model("cnn/model/steg_detector_residual_final.h5")
 
     def get_file_anomaly_warnings(self, filepath: str):
         file_analyzer = StegoFileInspector(filepath)
@@ -57,9 +61,10 @@ class Controller:
         return hpr_confidence
     
     def get_cnn_confidence_score(self, filepath: str):
-        self.cnn_detector.model = tf.keras.models.load_model("cnn/model/steg_detector.h5")
-
         return self.cnn_detector.predict_image(filepath)
+    
+    def get_cnn_confidence_residual_score(self, filepath: str):
+        return self.cnn_detector_residual.predict_image(filepath)
 
     def handle_detect(
         self,
@@ -77,6 +82,13 @@ class Controller:
             file_anomaly_warnings = self.get_file_anomaly_warnings(filepath)
             print(f"We have {len(file_anomaly_warnings)} anomalies!")
 
+            # spa = SPASteganalysis()
+
+            # p_hat, (ci_low, ci_high) = spa.analyze(filepath)
+
+            # print(f"SPA embedding estimate: {p_hat:.4f}")
+            # print(f"95% CI: [{ci_low:.4f}, {ci_high:.4f}]")
+
             # Run RS Analysis to obtain confidence score and heatmaps
             rs_confidence = self.get_rs_analysis_artifacts(filepath)
             print(f"rs_confidence = {rs_confidence}")
@@ -87,12 +99,17 @@ class Controller:
 
             # Get the confidence score from the neural network
             cnn_confidence = self.get_cnn_confidence_score(filepath)
-            print(f"Steganography detected: (confidence: {cnn_confidence:.2f})")
+            print(f"CNN confidence: {cnn_confidence:.2f}")
+            
+            cnn_confidence_residual = self.get_cnn_confidence_residual_score(filepath)
+            print(f"CNN confidence residual: {cnn_confidence_residual:.2f}")
 
-            confidence_average = rs_confidence * 0.2 + hpr_confidence * 0.4 + cnn_confidence * 0.4
+            confidence_average = rs_confidence * 0.2 + hpr_confidence * 0.3 +\
+                cnn_confidence * 0.2 + cnn_confidence_residual * 0.3
 
             report_generator = LatexReportGenerator("latex_report/report_template.tex")
-            report_generator.generate_report(filepath, rs_confidence, hpr_confidence, cnn_confidence, confidence_average, file_anomaly_warnings)
+            report_generator.generate_report(filepath, rs_confidence, hpr_confidence, cnn_confidence,
+                                             cnn_confidence_residual, confidence_average, file_anomaly_warnings)
             report_generator.compile_pdf("latex_report/report.tex", report_output_path)
             
 
