@@ -31,7 +31,9 @@ reason, these residuals are used by many modern steganalysis methods.
 
 A convolutional neural network (CNN) was used to provide an additional learned-based estimate of steganographic embedding probability.
 The model has been trained on the BOSSBase(Break Our Steganographic System Base), which is one of the most important and widely used benchmark datasets
-in steganography and steganalysis research. It consists of 10,000 grayscale images.
+in steganography and steganalysis research. It consists of 18,000 grayscale images.
+
+A second model has also been trained on the high-pass residual images obtained based on the regular dataset.
 
 ## LaTeX Report
 
