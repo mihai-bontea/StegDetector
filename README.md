@@ -24,7 +24,7 @@ since small payloads may produce a disturbance that is too subtle to reliably de
 
 High-pass residual analysis refers to a class of statistical steganalysis techniques that apply high-pass filters(or residual filters) to an image, in order to suppress
 the "normal content" (smooth, large-scale textures) and amplify the small perturbations or "noise" caused by steganography use. This results in a residual image:
-a two-dimensional array showingdifferences, edges, and high-frequency detail. Hidden data often shows up in these residuals more clearly than in the original image. For this 
+a two-dimensional array showing differences, edges, and high-frequency detail. Hidden data often shows up in these residuals more clearly than in the original image. For this 
 reason, these residuals are used by many modern steganalysis methods.
 
 ## CNN-Based Steganography Detection
